@@ -31,8 +31,8 @@ class Enemy(GameSprite):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
 class Ball(GameSprite):
-    def __init__(self):
-        super.__init__()
+    def __init__(self, player_image, player_x, player_y, player_speed):
+        super().__init__(player_image, player_x, player_y, player_speed)
         napr = 0
         ud = 1
         rl = 1
@@ -45,6 +45,10 @@ class Ball(GameSprite):
             rand_napr = randint(205, 260)
         if rand_napr == 4:
             rand_napr = randint(280, 335)
+        self.napr = rand_napr
+        self.ud = 1
+        self.rl = 1
+        self.hotcat_touch = 0
     def update(self):
         self.rect.y += self.speed
         global lost
@@ -79,9 +83,26 @@ while game:
     clock.tick(60)
     window.blit(backgrounds, (0, 0))
     
-    hotcat.rect.y += 10 * sin(hotcat.napr / 57.2958)
-    hotcat.rect.x += 10 * cos(hotcat.napr / 57.2958)
+    if hotcat.ud == 1:
+        hotcat.rect.y += 5 * sin(hotcat.napr / 57.2958)
+    else:
+        hotcat.rect.y -= 5 * sin(hotcat.napr / 57.2958)
+    if hotcat.rl == 1:
+        hotcat.rect.x += 5 * cos(hotcat.napr / 57.2958)
+    else:
+        hotcat.rect.x -= 5 * cos(hotcat.napr / 57.2958)
 
+    if hotcat.rect.y <= 0:
+        hotcat.ud *= -1
+    if hotcat.rect.y >= 400:
+        hotcat.ud *= -1
+    if sprite.collide_rect(line1, hotcat) or sprite.collide_rect(line2, hotcat):
+        if hotcat.hotcat_touch == 0:
+            hotcat.rl *= -1
+        hotcat.hotcat_touch = 1
+    else:
+        hotcat.hotcat_touch = 0
+    
     for i in event.get():
         if i.type == QUIT:
             game = False
@@ -89,4 +110,4 @@ while game:
     line2.reset()
     hotcat.update()
     display.update()
-    print(5 * cos(60 / 57.2958), 4 * sin(30 / 57.2958))
+    #print(5 * cos(60 / 57.2958), 4 * sin(30 / 57.2958))
